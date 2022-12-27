@@ -2,6 +2,7 @@
  import { useEffect,useState } from 'react'
 
  export const  useFetch=(id)=>{
+  
   const [data,setData]=useState({})
   const [loading,setLoading]=useState(false)
   const [error,setError] =useState("")
@@ -10,9 +11,9 @@
     const getRecipeItemData=async()=>{
       try{
         setLoading(false)
-        const res = await fetch(`https://forkify-api.herokuapp.com/api/get?rId=${id}`)
+        const res = await fetch(`https://forkify-api.herokuapp.com/api/v2/recipes/${id}`)
         const data = await res.json()
-        setData(data)
+        setData(data.data.recipe)
         setLoading(false)
       }catch(err){
         setError(err.message)
