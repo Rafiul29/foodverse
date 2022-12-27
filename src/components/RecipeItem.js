@@ -1,6 +1,13 @@
-import React from 'react'
+
+import { useParams } from 'react-router-dom'
+import { useFetch } from './hooks/useFetch';
 
 const RecipeItem = () => {
+  const {id} = useParams();
+  
+  const {data:recipe,loading,error}=useFetch(id)
+
+  console.log(recipe.recipe)
   return (
     <div>RecipeItem</div>
   )
