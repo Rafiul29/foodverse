@@ -1,5 +1,6 @@
-import { useState,useRef } from "react";
-import { Route, Routes } from "react-router-dom";
+import { data } from "autoprefixer";
+import { useState,useRef, useEffect } from "react";
+import { Route, Routes, useNavigate } from "react-router-dom";
 import Favourites from "./components/Favourites";
 import Footer from "./components/Footer";
 
@@ -15,8 +16,12 @@ const App = () => {
   const [loading,setLoading]=useState(false)
   const [error,setError]=useState("");
 
+  const [savedItems,setSavedItems]=useState(()=>{
+    const localData=localStorage.getItem("recipes");
+    return localData? JSON.parse(localData) :[];
+  })
   const inputField=useRef(null)
-
+const navigate=useNavigate()
   const searchHandler=((e)=>{
 
     e.preventDefault()
@@ -26,7 +31,10 @@ const App = () => {
     setSearchQuery("")
    inputField.current.blur();
     setRecipes([])
+    setError("")
+    navigate("/")
   })
+
 
   const getData=async(searchQuery)=>{
     try{
@@ -41,6 +49,35 @@ const App = () => {
       setError(err.message)
     }
   }
+
+
+
+  const checkLocalData = (data) => {
+    const localData = JSON.parse(localStorage.getItem("recipes"));
+    const dataExistance = localData.some((local) => local.id === data.id);
+
+    if (!dataExistance) {
+      setSavedItems((prevState) => [...prevState, data]);
+    } else {
+      const filteredLocalData = localData.filter(
+        (local) => local.id !== data.id
+      );
+      setSavedItems(filteredLocalData);
+    }
+  };
+
+  const favouriteHandler = (id) => {
+    fetch(`https://forkify-api.herokuapp.com/api/v2/recipes/${id}`)
+      .then((res) => res.json())
+      .then((data) => checkLocalData(data.data.recipe));
+
+    navigator("favourites");
+  };
+
+  useEffect(() => {
+    localStorage.setItem("recipes", JSON.stringify(savedItems));
+  }, [savedItems]);
+
   return (
     <>
       <div className="app min-h-screen bg-rose-50 text-gray-600 text-lg">
@@ -49,6 +86,7 @@ const App = () => {
         setSearchQuery={setSearchQuery}
         inputField={inputField}
         searchHandler={searchHandler}
+        savedItems={savedItems}
         />
 
         <Routes>
@@ -57,8 +95,8 @@ const App = () => {
           loading={loading}
           error={error}
           />} />
-          <Route path="/favourites" element={<Favourites />} />
-          <Route path="/recipe-item/:id" element={<RecipeItem/>}/>
+          <Route path="/favourites" element={<Favourites savedItems={savedItems}/>} />
+          <Route path="/recipe-item/:id" element={<RecipeItem favouriteHandler={favouriteHandler}/>}/>
           <Route path="*" element={<NotFound/>}/>
         </Routes>
       </div>
