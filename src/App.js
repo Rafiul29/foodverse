@@ -1,4 +1,4 @@
-import { data } from "autoprefixer";
+
 import { useState,useRef, useEffect } from "react";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import Favourites from "./components/Favourites";

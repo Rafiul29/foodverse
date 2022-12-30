@@ -5,14 +5,21 @@ const RecipeItem = ({favouriteHandler}) => {
   const { id } = useParams();
 
   const { data:recipe, loading, error } = useFetch(id);
-
+console.log("cook",recipe.cooking_time)
 const durationCalc=(duration)=>{
   if(!duration) return;
   if(!String(duration).includes(".")){
     return duration+"h"
   }
-  if(String(duration).includes(".")){
-    return String(duration) .replace(".","h")+"min"
+
+
+  if (String(duration).includes(".")) {
+    const splittedDuration = String(duration).split(".");
+    const hour = splittedDuration[0] + "h";
+    const splitterMinutes = "." + splittedDuration[1];
+    const minutes = +splitterMinutes * 60 + "min";
+
+    return hour + minutes;
   }
 }
 

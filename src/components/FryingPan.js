@@ -1,10 +1,9 @@
-import React from 'react'
 
 const FryingPan = () => {
   return (
-    <div>
-      
-    </div>
+  <div>
+
+  </div>
   )
 }
 
