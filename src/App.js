@@ -15,7 +15,9 @@ const App = () => {
   const [recipes,setRecipes]=useState([])
   const [loading,setLoading]=useState(false)
   const [error,setError]=useState("");
-
+  const [stable, setStable] = useState(
+    "Nothing to show, please search something!"
+  );
   const [savedItems,setSavedItems]=useState(()=>{
     const localData=localStorage.getItem("recipes");
     return localData? JSON.parse(localData) :[];
@@ -94,6 +96,7 @@ const navigate=useNavigate()
           recipes={recipes}
           loading={loading}
           error={error}
+          stable={stable}
           />} />
           <Route path="/favourites" element={<Favourites savedItems={savedItems}/>} />
           <Route path="/recipe-item/:id" element={<RecipeItem favouriteHandler={favouriteHandler}/>}/>

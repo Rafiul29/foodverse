@@ -13,6 +13,7 @@ const NotFound = () => {
       >
         Go home
       </Link>
+      <FryingPan/>
     </div>
   );
 };
