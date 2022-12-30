@@ -1,60 +1,101 @@
 import { Link, useParams } from "react-router-dom";
-import { useFetch } from "./hooks/useFetch";
+import { useFetch } from "../hooks/useFetch";
 import { HiOutlineCheck } from "react-icons/hi";
-const RecipeItem = ({favouriteHandler}) => {
+import { useEffect, useState } from "react";
+
+const RecipeItem = ({ favouriteHandler,savedItems }) => {
+  const [itemSavedStatus,setItemSavedStatus]=useState(null);
   const { id } = useParams();
+  const { data: recipe, loading, error } = useFetch(id);
 
-  const { data:recipe, loading, error } = useFetch(id);
-console.log("cook",recipe.cooking_time)
-const durationCalc=(duration)=>{
-  if(!duration) return;
-  if(!String(duration).includes(".")){
-    return duration+"h"
-  }
+  const durationCalc = (duration) => {
+    if (!duration) return;
+    if (!String(duration).includes(".")) {
+      return duration + "h";
+    }
+    if (String(duration).includes(".")) {
+      const splittedDuration = String(duration).split(".");
+      const hour = splittedDuration[0] + "h";
+      const splitterMinutes = "." + splittedDuration[1];
+      const minutes = +splitterMinutes * 60 + "min";
+      return hour + minutes;
+    }
+  };
 
 
-  if (String(duration).includes(".")) {
-    const splittedDuration = String(duration).split(".");
-    const hour = splittedDuration[0] + "h";
-    const splitterMinutes = "." + splittedDuration[1];
-    const minutes = +splitterMinutes * 60 + "min";
-
-    return hour + minutes;
-  }
-}
-
+useEffect(()=>{
+  if(!recipe) return;
+  setItemSavedStatus(savedItems.some((item)=>item.id===recipe.id))
+},[recipe])
 
   return (
     <div className="recipe-item-section container mx-auto py-20 grid grid-cols-1 lg:grid-cols-2 gap-10">
       <div className="left">
         <div className="img">
-         <img src={recipe.image_url} alt={recipe.title} className="w-full block rounded-xl hover:scale-105 duration-300"/>
+          <img
+            src={recipe.image_url}
+            alt={recipe.title}
+            className="w-full block rounded-xl hover:scale-105 duration-300"
+          />
         </div>
         <div className="ings mt-10">
-          <span className="ing-title 
-           text-2xl lg:text-4xl flex items-center gap-3 font-medium mb-5 text-rose-500">Ingredients :</span>
+          <span
+            className="ing-title 
+           text-2xl lg:text-4xl flex items-center gap-3 font-medium mb-5 text-rose-500"
+          >
+            Ingredients :
+          </span>
           <ul>
-            {recipe?.ingredients?.map((ing,i)=>{
-              return(
-                <li className="flex flex-row mt-2" key={i}><HiOutlineCheck className="mt-1 text-2xl" />{ing.description}</li>
-              )
+            {recipe?.ingredients?.map((ing, i) => {
+              return (
+                <li className="flex flex-row mt-2" key={i}>
+                  <HiOutlineCheck className="mt-1 text-2xl" /> {ing.quantity}
+                  {ing.unit} {ing.description}
+                </li>
+              );
             })}
           </ul>
         </div>
       </div>
       <div className="right flex flex-col gap-4">
         <span className="publisher uppercase text-x4 text-sky-400 font-semibold tracking-widerv">
-              {recipe?.publisher}
+          {recipe?.publisher}
         </span>
         <h2 className="title text-2xl  tracking-wider"> {recipe?.title}</h2>
         <div className="serving-cooking-time flex gap-5 uppercase font-semibold text-rose-500">
-          <div className="servings">Served for :  {recipe?.servings} people</div>
-          <div className="cooking-time">Cooking Time: {recipe?.cooking_time < 60? String(recipe?.cooking_time)+"min":durationCalc(recipe?.cooking_time/60) }</div>
+          <div className="servings">Served for : {recipe?.servings} people</div>
+          <div className="cooking-time">
+            Cooking Time:{" "}
+            {recipe?.cooking_time < 60
+              ? String(recipe?.cooking_time) + "min"
+              : durationCalc(recipe?.cooking_time / 60)}
+          </div>
         </div>
         <div className="btns flex gap-5">
-        <button onClick={()=>favouriteHandler(recipe?.id)} className="bg-gradient-to-br from-sky-400 to-sky-600 text-sky-50 p-3 px-8 rounded-lg text-sm uppercase font-medium tracking-wider mt-2 inline-block shadow-sd shadow-sky-200 hover:shadow-lg hover:shadow-sky-200 duration-300">+ Save as favourite</button>
-        <a href={recipe?.source_url} target="_blank" rel="noreferrer" className="bg-gradient-to-br from-purple-400 to-purple-600 text-sky-50 p-3 px-8 rounded-lg text-sm uppercase font-medium tracking-wider mt-2 inline-block shadow-sd shadow-purple-200 hover:shadow-lg hover:shadow-purple-200 duration-300">Get directions</a>
-        <Link to="/" className="bg-gradient-to-br from-rose-400 to-rose-600 text-rose-50 p-3 px-8 rounded-lg text-sm uppercase font-medium tracking-wider mt-2 inline-block shadow-md shadow-rose-200 hover:shadow-lg hover:shadow-rose-300 duration-300">Back to home </Link>
+          <button
+            onClick={() => favouriteHandler(recipe?.id)}
+             className={`bg-gradient-to-br p-3 px-8 rounded-lg text-sm uppercase font-medium tracking-wider mt-2 inline-block shadow-md hover:shadow-lg  duration-300 ${
+              itemSavedStatus
+                ? "from-orange-400 to-orange-600 text-orange-50 shadow-orange-200 hover:shadow-orange-300"
+                : "from-sky-400 to-sky-600 text-sky-50 shadow-sky-200 hover:shadow-sky-300"
+            }`}
+          >
+           {itemSavedStatus? "-Removed from favourite" : "+ Save as favourite"}
+          </button>
+          <a
+            href={recipe?.source_url}
+            target="_blank"
+            rel="noreferrer"
+            className="bg-gradient-to-br from-purple-400 to-purple-600 text-sky-50 p-3 px-8 rounded-lg text-sm uppercase font-medium tracking-wider mt-2 inline-block shadow-sd shadow-purple-200 hover:shadow-lg hover:shadow-purple-200 duration-300"
+          >
+            Get directions
+          </a>
+          <Link
+            to="/"
+            className="bg-gradient-to-br from-rose-400 to-rose-600 text-rose-50 p-3 px-8 rounded-lg text-sm uppercase font-medium tracking-wider mt-2 inline-block shadow-md shadow-rose-200 hover:shadow-lg hover:shadow-rose-300 duration-300"
+          >
+            Back to home{" "}
+          </Link>
         </div>
       </div>
     </div>

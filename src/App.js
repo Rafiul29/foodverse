@@ -1,9 +1,10 @@
 
 import { useState,useRef, useEffect } from "react";
 import { Route, Routes, useNavigate } from "react-router-dom";
+
+
 import Favourites from "./components/Favourites";
 import Footer from "./components/Footer";
-
 import Home from "./components/Home";
 import Navbar from "./components/Navbar";
 import NotFound from "./components/NotFound";
@@ -22,8 +23,10 @@ const App = () => {
     const localData=localStorage.getItem("recipes");
     return localData? JSON.parse(localData) :[];
   })
+
   const inputField=useRef(null)
 const navigate=useNavigate()
+
   const searchHandler=((e)=>{
 
     e.preventDefault()
@@ -51,8 +54,6 @@ const navigate=useNavigate()
       setError(err.message)
     }
   }
-
-
 
   const checkLocalData = (data) => {
     const localData = JSON.parse(localStorage.getItem("recipes"));
@@ -99,7 +100,7 @@ const navigate=useNavigate()
           stable={stable}
           />} />
           <Route path="/favourites" element={<Favourites savedItems={savedItems}/>} />
-          <Route path="/recipe-item/:id" element={<RecipeItem favouriteHandler={favouriteHandler}/>}/>
+          <Route path="/recipe-item/:id" element={<RecipeItem favouriteHandler={favouriteHandler} savedItems={savedItems}/>}/>
           <Route path="*" element={<NotFound/>}/>
         </Routes>
       </div>
